@@ -1,2 +1,4 @@
 server:
  port: 8090
+spring.datasource.tomcat.initial-size: 1
+management.endpoints.web.exposure.include: *

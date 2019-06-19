@@ -8,8 +8,9 @@ import lombok.Data;
 @Configuration
 @ConfigurationProperties(prefix = "application.policies")
 @Data
-public class IntersectionConstraintProperties {
+public class ApplicationPoliciesProperties {
   
-  private Boolean intersection;
+  private Boolean intersectionThroughLinks;
+  private Integer maxNumberResults;
   
 }

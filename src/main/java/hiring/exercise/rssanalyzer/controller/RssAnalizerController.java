@@ -1,5 +1,6 @@
 package hiring.exercise.rssanalyzer.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -11,12 +12,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import hiring.exercise.rssanalyzer.controller.request.UrlRequest;
-import hiring.exercise.rssanalyzer.controller.response.OkResponse;
+import hiring.exercise.rssanalyzer.model.MatchedRss;
+import hiring.exercise.rssanalyzer.service.AnalyzerRssService;
 
 @RestController
 @RequestMapping({ "/rss-analyzer" })
 @CrossOrigin(origins = "*")
 public class RssAnalizerController {
+  
+  @Autowired
+  private AnalyzerRssService analyzerRssService;
   
   @GetMapping(value = "/health")
   public ResponseEntity<String> health() {
@@ -25,13 +30,14 @@ public class RssAnalizerController {
   
   @PostMapping("/analyse/new")
   public ResponseEntity<Integer> create(@RequestBody UrlRequest urls) {
-    return new ResponseEntity<>(new Integer(2), HttpStatus.OK);
+    Integer processRssFeeds = analyzerRssService.processRssFeeds(urls);
+    return new ResponseEntity<>(processRssFeeds, HttpStatus.OK);
   }
   
   @GetMapping("/frequency")
   public ResponseEntity<Object> create(@RequestParam int id) {
-    //return new ResponseEntity<>(EventService.create(Event), HttpStatus.OK);
-    return null;
+    MatchedRss relatedNewsFeeds = analyzerRssService.getRelatedNewsFeeds(id);
+    return new ResponseEntity<>(relatedNewsFeeds, HttpStatus.OK);
   }
   
 }

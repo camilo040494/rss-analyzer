@@ -1,9 +1,12 @@
 package hiring.exercise.rssanalyzer.service;
 
-import java.util.List;
+import hiring.exercise.rssanalyzer.controller.request.UrlRequest;
+import hiring.exercise.rssanalyzer.model.MatchedRss;
 
 public interface AnalyzerRssService {
   
-  Object processRssFeeds(List<String> urls);
+  Integer processRssFeeds(UrlRequest urls);
+  
+  MatchedRss getRelatedNewsFeeds(int id);
   
 }

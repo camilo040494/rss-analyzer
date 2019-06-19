@@ -1,5 +1,7 @@
 package hiring.exercise.rssanalyzer.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import hiring.exercise.rssanalyzer.controller.request.UrlRequest;
+import hiring.exercise.rssanalyzer.controller.response.RelatedNewsResponse;
 import hiring.exercise.rssanalyzer.model.MatchedRss;
 import hiring.exercise.rssanalyzer.service.AnalyzerRssService;
 
@@ -35,8 +38,8 @@ public class RssAnalizerController {
   }
   
   @GetMapping("/frequency")
-  public ResponseEntity<Object> create(@RequestParam int id) {
-    MatchedRss relatedNewsFeeds = analyzerRssService.getRelatedNewsFeeds(id);
+  public ResponseEntity<List<RelatedNewsResponse>> create(@RequestParam int id) {
+    List<RelatedNewsResponse> relatedNewsFeeds = analyzerRssService.getRelatedNewsFeeds(id);
     return new ResponseEntity<>(relatedNewsFeeds, HttpStatus.OK);
   }
   

@@ -2,6 +2,7 @@ package hiring.exercise.rssanalyzer.service;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 
 import hiring.exercise.rssanalyzer.controller.request.UrlRequest;
+import hiring.exercise.rssanalyzer.controller.response.RelatedNewsResponse;
 import hiring.exercise.rssanalyzer.facade.RssFeedFacade;
 import hiring.exercise.rssanalyzer.model.MatchedRss;
 import hiring.exercise.rssanalyzer.model.RssData;
@@ -32,7 +34,8 @@ import hiring.exercise.rssanalyzer.repository.MatchedRssRepository;
 public class AnalyzerRssServiceImpl implements AnalyzerRssService{
   
   private static final String EMPTY_CHARACTER = "";
-  private static final String ADMIT_ONLY_LETTER_AND_NUMBER_REGEX = "[^a-zA-Z0-9]";
+  private static final String ADMIT_ONLY_LETTER_AND_NUMBER_REGEX = "[,.:;()-]";
+//  private static final String ADMIT_ONLY_LETTER_AND_NUMBER_REGEX = "[^a-zA-Z0-9]";
   private static final String SPACE = " ";
 
   @Autowired
@@ -94,18 +97,19 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
   }
 
   private void findLinks(MatchedRss match, String hotTopic, List<Pair<SyndEntry,String>> feeds) {
-    RssData data = new RssData();
     for (Pair<SyndEntry,String> syndFeed : feeds) {
-       if (!syndFeed.getFirst().getTitle().contains(hotTopic)) {
+       if (syndFeed.getFirst().getTitle().contains(hotTopic)) {
+         RssData data = new RssData();
          data.setLink(syndFeed.getFirst().getLink());
          data.setHeader(syndFeed.getFirst().getTitle());
+         data.setTopic(hotTopic);
          match.addRssData(data);
        }
      }
   }
 
   private void filterByNotFoundInAllLinks(LinkedHashMap<String, Long> countByWordSorted, List<Pair<SyndEntry,String>> feeds) {
-    Set<String> keySet = countByWordSorted.keySet();
+    Set<String> keySet = new HashSet<String>(countByWordSorted.keySet());
     Map<String, List<Pair<SyndEntry, String>>> collect = feeds.stream().collect(Collectors.groupingBy(Pair::getSecond));
     Set<String> feedsByLink = collect.keySet();
     
@@ -155,10 +159,23 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
   }
 
   @Override
-  public MatchedRss getRelatedNewsFeeds(int id) {
+  public List<RelatedNewsResponse> getRelatedNewsFeeds(int id) {
     Optional<MatchedRss> findById = matchedRssRepository.findById(id);
     if (findById.isPresent()) {
-      return findById.get();
+      MatchedRss data = findById.get();
+      List<RelatedNewsResponse> relatedNews = Lists.newArrayList();
+      
+      Map<String, List<RssData>> collect = data.getData().stream().collect(Collectors.groupingBy(RssData::getTopic));
+      
+      for (String topic : collect.keySet()) {
+        RelatedNewsResponse response = new RelatedNewsResponse();
+        response.setTopic(topic);
+        List<RssData> feeds = collect.get(topic);
+        response.setFeeds(feeds);
+        response.setFrecuency(feeds.size());
+        relatedNews.add(response);
+      }
+      return relatedNews;
     }
     //TODO throws exception
     return null;

@@ -1,7 +1,10 @@
 package hiring.exercise.rssanalyzer.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -19,8 +22,8 @@ public class MatchedRss {
   @GeneratedValue
   private int id;
   
-  @OneToMany
-  private List<RssData> data;
+  @OneToMany(cascade = CascadeType.ALL)
+  private List<RssData> data = new ArrayList<RssData>();
   
   public void addRssData(RssData rssData) {
     data.add(rssData);

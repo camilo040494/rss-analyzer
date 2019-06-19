@@ -18,5 +18,5 @@ spring:
   
 application:
   policies:
-    intersectionThroughLinks: true
+    intersectionThroughLinks: false
     maxNumberResults: 3

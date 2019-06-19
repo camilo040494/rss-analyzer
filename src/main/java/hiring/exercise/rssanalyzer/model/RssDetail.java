@@ -7,9 +7,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MatchedRss {
+public class RssDetail {
   
-  private int id;
-  private List<RssDetail> data;
+  private List<RssData> news;
   
 }

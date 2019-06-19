@@ -9,3 +9,6 @@ spring:
   datasource:
     tomcat:
       initial-size: 1
+application:
+  policies:
+    intersection: true

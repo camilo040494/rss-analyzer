@@ -20,7 +20,7 @@ application:
   policies:
     intersectionThroughLinks: false
     maxNumberResults: 3
-    blackListWords: in, to, from
+    blackListWords: in, the, The, for, of, to, on, it, is, with, a, and
     
 
 

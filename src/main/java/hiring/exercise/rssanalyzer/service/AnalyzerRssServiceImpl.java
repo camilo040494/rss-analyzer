@@ -3,12 +3,13 @@ package hiring.exercise.rssanalyzer.service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ import hiring.exercise.rssanalyzer.repository.MatchedRssRepository;
 public class AnalyzerRssServiceImpl implements AnalyzerRssService{
   
   private static final String EMPTY_CHARACTER = "";
-  private static final String ADMIT_ONLY_LETTER_AND_NUMBER_REGEX = "[,.:;()-]";
+  private static final String ADMIT_ONLY_LETTER_AND_NUMBER_REGEX = "[0-9,.:;()-]";
 //  private static final String ADMIT_ONLY_LETTER_AND_NUMBER_REGEX = "[^a-zA-Z0-9]";
   private static final String SPACE = " ";
 
@@ -79,19 +80,18 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
       }
     });
     
-    Map<String, Long> countByWordSorted = countOcurrences(hotWords);
+    Set<Pair<String, Long>> keySet = countOcurrences(hotWords);
     
-    if (applicationPoliciesProperties.getIntersectionThroughLinks()) {
-      filterByNotFoundInAllLinks(countByWordSorted, feeds);
-    }
+//    if (applicationPoliciesProperties.getIntersectionThroughLinks()) {
+//      filterByNotFoundInAllLinks(countByWordSorted, feeds);
+//    }
     
-    Set<String> keySet = countByWordSorted.keySet();
     Integer maxCounts = new Integer(applicationPoliciesProperties.getMaxNumberResults());
-    for (String hotTopic : keySet) {
+    for (Pair<String, Long> hotTopic : keySet) {
       if (maxCounts == 0) {
         break;
       }
-      findLinks(match, hotTopic, feeds);
+      findLinks(match, hotTopic.getFirst(), feeds);
       maxCounts--;
     }
     match = matchedRssRepository.save(match);
@@ -140,17 +140,24 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
     }
   }
 
-  private TreeMap<String, Long> countOcurrences(List<String> hotWords) {
+  private Set<Pair<String, Long>> countOcurrences(List<String> hotWords) {
     Map<String, Long> collect = hotWords.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-    TreeMap<String, Long> countByWordSorted = collect.entrySet()
+    Set<Pair<String, Long>> countByWordSorted = collect.entrySet()
         .stream()
-        .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-        .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue,
-                (v1, v2) -> Long.compare(v1, v2) > 0 ? v1 : v2,
-                TreeMap::new
-        ));
+        .map(word -> Pair.of(word.getKey(), word.getValue()))
+        .collect(Collectors.toCollection(
+            () -> new TreeSet<Pair<String, Long>>(
+                (Pair<String, Long> pair1, Pair<String, Long> pair2) -> 
+                  {
+                    int number = Long.compare(pair2.getSecond(), pair1.getSecond());
+                    if (number == 0) {
+                      return pair1.getFirst().compareTo(pair2.getFirst());
+                    } else {
+                      return number;
+                    }
+                  } 
+                )
+            ));
     return countByWordSorted;
   }
 

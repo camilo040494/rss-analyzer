@@ -11,6 +11,10 @@ import com.sun.syndication.io.ParsingFeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
+import hiring.exercise.rssanalyzer.exception.UnRecognizedFeedException;
+import hiring.exercise.rssanalyzer.exception.UnRecognizedUrlFeedException;
+import hiring.exercise.rssanalyzer.exception.UnparseableXmlException;
+
 @Component
 public class RssFeedFacade {
   
@@ -20,19 +24,12 @@ public class RssFeedFacade {
       SyndFeedInput input = new SyndFeedInput();
       return input.build(new XmlReader(feedSource));
     } catch (IllegalArgumentException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (ParsingFeedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new UnRecognizedFeedException();
     } catch (FeedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new UnRecognizedUrlFeedException();
     } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      throw new UnparseableXmlException();
     }
-    return null;
   }
   
 }

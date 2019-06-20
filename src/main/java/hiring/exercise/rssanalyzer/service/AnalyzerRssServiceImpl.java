@@ -25,6 +25,7 @@ import com.sun.syndication.feed.synd.SyndFeed;
 
 import hiring.exercise.rssanalyzer.controller.request.UrlRequest;
 import hiring.exercise.rssanalyzer.controller.response.RelatedNewsResponse;
+import hiring.exercise.rssanalyzer.exception.NonExistentIdException;
 import hiring.exercise.rssanalyzer.facade.RssFeedFacade;
 import hiring.exercise.rssanalyzer.model.MatchedRss;
 import hiring.exercise.rssanalyzer.model.RssData;
@@ -183,8 +184,7 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
       }
       return relatedNews;
     }
-    //TODO throws exception
-    return null;
+    throw new NonExistentIdException();
   }
   
 }

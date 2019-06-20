@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -71,13 +72,13 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
       String[] split = feed.getFirst().getTitle().split(SPACE);
       for (String title : split) {
         String cleanString = title.replaceAll(ADMIT_ONLY_LETTER_AND_NUMBER_REGEX, EMPTY_CHARACTER);
-        if (!StringUtils.isNullOrEmpty(cleanString)) {
+        if (!StringUtils.isNullOrEmpty(cleanString) && notInBlackList(cleanString)) {
           hotWords.add(cleanString);
         }
       }
     });
     
-    LinkedHashMap<String, Long> countByWordSorted = countOcurrences(hotWords);
+    Map<String, Long> countByWordSorted = countOcurrences(hotWords);
     
     if (applicationPoliciesProperties.getIntersectionThroughLinks()) {
       filterByNotFoundInAllLinks(countByWordSorted, feeds);
@@ -95,6 +96,13 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
     match = matchedRssRepository.save(match);
     return match.getId();
   }
+  
+  private boolean notInBlackList(String cleanString) {
+    if (CollectionUtils.isNullOrEmpty(applicationPoliciesProperties.getBlackListWords())) {
+      return true;
+    }
+    return !applicationPoliciesProperties.getBlackListWords().contains(cleanString);
+  }
 
   private void findLinks(MatchedRss match, String hotTopic, List<Pair<SyndEntry,String>> feeds) {
     for (Pair<SyndEntry,String> syndFeed : feeds) {
@@ -108,7 +116,7 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
      }
   }
 
-  private void filterByNotFoundInAllLinks(LinkedHashMap<String, Long> countByWordSorted, List<Pair<SyndEntry,String>> feeds) {
+  private void filterByNotFoundInAllLinks(Map<String, Long> countByWordSorted, List<Pair<SyndEntry,String>> feeds) {
     Set<String> keySet = new HashSet<String>(countByWordSorted.keySet());
     Map<String, List<Pair<SyndEntry, String>>> collect = feeds.stream().collect(Collectors.groupingBy(Pair::getSecond));
     Set<String> feedsByLink = collect.keySet();
@@ -131,18 +139,16 @@ public class AnalyzerRssServiceImpl implements AnalyzerRssService{
     }
   }
 
-  private LinkedHashMap<String, Long> countOcurrences(List<String> hotWords) {
+  private TreeMap<String, Long> countOcurrences(List<String> hotWords) {
     Map<String, Long> collect = hotWords.stream().collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-    LinkedHashMap<String, Long> countByWordSorted = collect.entrySet()
+    TreeMap<String, Long> countByWordSorted = collect.entrySet()
         .stream()
         .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
         .collect(Collectors.toMap(
                 Map.Entry::getKey,
                 Map.Entry::getValue,
-                (v1, v2) -> {
-                    throw new IllegalStateException();
-                },
-                LinkedHashMap::new
+                (v1, v2) -> Long.compare(v1, v2) > 0 ? v1 : v2,
+                TreeMap::new
         ));
     return countByWordSorted;
   }

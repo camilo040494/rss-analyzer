@@ -20,3 +20,7 @@ application:
   policies:
     intersectionThroughLinks: false
     maxNumberResults: 3
+    blackListWords: in, to, from
+    
+
+

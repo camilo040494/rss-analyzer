@@ -28,6 +28,10 @@ public class ListValidatorConstraint implements ConstraintValidator<ListValidato
       try {
         new URL(url);        
       } catch (MalformedURLException e) {
+        context.disableDefaultConstraintViolation();
+        context
+            .buildConstraintViolationWithTemplate(String.format("Malformed url: [%s]", url))
+            .addConstraintViolation();
         return false;
       }
     }

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class UrlRequest {
   
-  @ListValidator(message = "Invalid url's: must be valid and more than 1")
+  @ListValidator(message = "You must specify more than 1 url's")
   private List<String> urls;
   
 }

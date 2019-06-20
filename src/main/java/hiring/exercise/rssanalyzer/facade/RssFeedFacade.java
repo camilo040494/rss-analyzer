@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.ParsingFeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
@@ -19,6 +20,9 @@ public class RssFeedFacade {
       SyndFeedInput input = new SyndFeedInput();
       return input.build(new XmlReader(feedSource));
     } catch (IllegalArgumentException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (ParsingFeedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (FeedException e) {

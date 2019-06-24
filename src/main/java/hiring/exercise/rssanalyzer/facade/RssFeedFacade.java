@@ -11,9 +11,9 @@ import com.sun.syndication.io.ParsingFeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
-import hiring.exercise.rssanalyzer.exception.UnRecognizedFeedException;
-import hiring.exercise.rssanalyzer.exception.UnRecognizedUrlFeedException;
-import hiring.exercise.rssanalyzer.exception.UnparseableXmlException;
+import hiring.exercise.rssanalyzer.exception.business.UnRecognizedFeedException;
+import hiring.exercise.rssanalyzer.exception.business.UnRecognizedUrlFeedException;
+import hiring.exercise.rssanalyzer.exception.business.UnparseableXmlException;
 
 @Component
 public class RssFeedFacade {
@@ -26,7 +26,7 @@ public class RssFeedFacade {
     } catch (IllegalArgumentException e) {
       throw new UnRecognizedFeedException();
     } catch (FeedException e) {
-      throw new UnRecognizedUrlFeedException();
+      throw new UnRecognizedUrlFeedException(url);
     } catch (IOException e) {
       throw new UnparseableXmlException();
     }

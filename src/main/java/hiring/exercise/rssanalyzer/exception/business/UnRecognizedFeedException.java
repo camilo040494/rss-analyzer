@@ -1,4 +1,4 @@
-package hiring.exercise.rssanalyzer.exception;
+package hiring.exercise.rssanalyzer.exception.business;
 
 public class UnRecognizedFeedException extends RuntimeException {
   
